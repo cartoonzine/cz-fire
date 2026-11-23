@@ -384,6 +384,7 @@ async function main() {
     const aux = { cats: tabelaPorTitulo(await pegar('categorias.txt')), fichas: new Map(), detalhes: tabelaPorTitulo(await pegar('detalhes.txt')), generos: tabelaPorTitulo(await pegar('generos.txt')), capaBase: 'https://image.tmdb.org/t/p/w342' };
     const fichasTxt = await pegar('fichas.txt');
     if (fichasTxt) { const m = fichasTxt.match(/^capa:\s*(\S+)/m); if (m) aux.capaBase = m[1]; aux.fichas = tabelaPorTitulo(fichasTxt.split(/\r?\n/).filter(l => !l.startsWith('capa:')).join('\n')); }
+    desc.push(`Índice: ${letras.reduce((a, l) => a + l.filmes, 0)} filmes · ${letras.reduce((a, l) => a + l.series, 0)} séries`, '```', ...indTxt.split(/\r?\n/).filter(l => !l.startsWith('base:')).slice(0, 40), '```');
     desc.push(`Servidores: ${Object.keys(bases).length} · letras: ${letras.length} · categorias: ${aux.cats.size} · fichas: ${aux.fichas.size}`, '');
 
     for (const { letra, filmes, series } of letras) {
