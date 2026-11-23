@@ -374,7 +374,7 @@ async function main() {
     for (const arq of ['catalogo.txt', 'canais.txt']) {
         const t = await baixar(`${CANAIS_BASE}/${arq}`); if (!t || /^\s*<!doctype html/i.test(t)) continue;
         const itens = lerArquivo(arq, t, 'canais', bases);
-        desc.push(`### canais: ${arq} (${itens.length})`, '```', ...t.split(/\r?\n/).filter(Boolean).slice(0, 6).map(l => l.slice(0, 250)), '```', '');
+        desc.push(`### canais: ${arq} (${itens.length})`, '```', ...t.split(/\r?\n/).filter(Boolean).slice(0, 60).map(l => l.slice(0, 300)), '```', '');
         if (itens.length) { porCat.canais = itens; break; }
     }
     if (process.argv.includes('--explorar') || process.env.FIRE_EXPLORAR) await explorar(desc);
