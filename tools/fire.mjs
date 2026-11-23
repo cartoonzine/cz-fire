@@ -187,6 +187,36 @@ function gravarCategoria(cat, itens, gravados) {
     return partes.length;
 }
 
+
+/** 🔎 procura no site do Saimo de onde vêm séries, animes, doramas… (vai para a descoberta) */
+async function explorar(desc) {
+    desc.push('## 🔎 Exploração do site', '');
+    const scripts = new Set();
+    for (const pg of ['https://saimo-tv.com.br/movies', 'https://saimo-tv.com.br/', 'https://saimo-tv.com.br/tv']) {
+        const h = await baixar(pg); if (!h) { desc.push(`- ${pg} não abriu`); continue; }
+        for (const m of h.matchAll(/<script[^>]+src="([^"]+)"/gi)) scripts.add(new URL(m[1], pg).href);
+        for (const m of h.matchAll(/<link[^>]+href="([^"]+\.js)"/gi)) scripts.add(new URL(m[1], pg).href);
+    }
+    const fila = [...scripts], feitos = new Set(), achados = new Set(), trechos = [];
+    while (fila.length && feitos.size < 60) {
+        const u = fila.shift(); if (feitos.has(u)) continue; feitos.add(u);
+        const js = await baixar(u); if (!js) continue;
+        for (const m of js.matchAll(/["'`](\.?\.?\/?[\w./-]+\.js)["'`]/g)) { try { const v = new URL(m[1], u).href; if (v.includes('saimo') && !feitos.has(v)) fila.push(v); } catch (e) {} }
+        for (const m of js.matchAll(/https?:\/\/[\w.-]+\.(?:pages\.dev|workers\.dev|saimotv\.com|saimo-tv\.com\.br)[\w./%?=&-]*/g)) achados.add(m[0]);
+        for (const m of js.matchAll(/["'`][\w${}%.\/-]*\.(?:txt|json|m3u8?)["'`]/g)) achados.add(m[0]);
+        for (const re of [/filmes-/g, /indice\.txt/g, /dorama/gi, /novela/gi, /anime/gi, /s[eé]ries?-/gi, /kids/gi]) {
+            let n = 0; for (const m of js.matchAll(re)) { if (n++ >= 3) break; trechos.push(`[${u.split('/').pop()}] …${js.slice(Math.max(0, m.index - 160), m.index + 200).replace(/\s+/g, ' ')}…`); }
+        }
+    }
+    desc.push(`Scripts lidos: ${feitos.size}`, '', 'Endereços e arquivos citados:', '```', ...[...achados].slice(0, 200), '```', '', 'Trechos:', '```', ...trechos.slice(0, 80), '```', '');
+    // tenta nomes prováveis
+    const bases = [FILMES_BASE, ...['series', 'animes', 'doramas', 'novelas', 'kids', 'conteudo', 'vod'].map(n => `https://${n}-saimo.pages.dev`)];
+    const nomes = ['indice.txt', ...['series', 'animes', 'doramas', 'novelas', 'novelinhas', 'kids', 'desenhos', 'infantil'].flatMap(n => [`${n}-A.txt`, `${n}.txt`, `${n}.json`]), 'series/indice.txt', 'series/A.txt'];
+    const ok = [];
+    for (const b of bases) for (const n of nomes) { if (b === FILMES_BASE && n === 'indice.txt') continue; const t = await baixar(b + '/' + n); if (t && !/^\s*<!doctype html/i.test(t)) ok.push(`${b}/${n} → ${t.split(/\r?\n/).filter(Boolean).slice(0, 3).join(' ⏎ ').slice(0, 300)}`); }
+    desc.push('Nomes testados que abriram:', '```', ...(ok.length ? ok : ['(nenhum)']), '```', '');
+}
+
 async function main() {
     const inicio = Date.now();
     const desc = ['# 🔥 CZ Fire — descoberta', '', `Gerado em ${new Date().toISOString()}`, ''];
@@ -215,6 +245,7 @@ async function main() {
         }
     }
 
+    if (process.argv.includes('--explorar') || process.env.FIRE_EXPLORAR) await explorar(desc);
     if (!SIMULAR) fs.mkdirSync(SAIDA, { recursive: true });
     const gravados = new Set(['resumo.json', 'descoberta.md']);
     const resumo = { geradoEm: new Date().toISOString(), categorias: {} };
