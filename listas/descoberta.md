@@ -1,6 +1,6 @@
 # 🔥 CZ Fire — descoberta
 
-Gerado em 2026-11-23T01:44:46.154Z
+Gerado em 2026-11-23T02:14:34.020Z
 
 ## Filmes — https://filmes-saimo.pages.dev
 
@@ -284,7 +284,7 @@ ZUMBI-Tona com Os Vizinhos Green	dub=18:1030192
 
 ⚠️ indice.txt não abriu
 
-### canais.txt → canais (8 itens)
+### canais.txt → canais (6 itens)
 ```
 #EXTM3U
 #EXTINF:-1 tvg-id="A&E" tvg-logo="https://www.tvlogo.org/brazil/a-and-e-br.png" group-title="FILMES E SÉRIES", A&E (S79)
@@ -415,7 +415,17 @@ Trechos:
 
 Nomes testados que abriram:
 ```
-https://filmes-saimo.pages.dev/series-A.txt → A Academia		0	8 ⏎ A Acusação		0	4 ⏎ A Agente	2025	0	6
-https://filmes-saimo.pages.dev/novelinhas.txt → # Novelinhas (minisséries verticais, 720x1280) da RedeFlix. Gerado por atualizar_novelinhas.py. ⏎ # Episódio: base + pasta + /episode-NNN.mp4 (três dígitos). ⏎ base: https://pub-3bce2defc5bb48328c9c6f4b234fa0fb.r2.dev/novelinhas/
+categorias.txt → # Categoria de cada título: anime, dorama, novela, kids (vírgula entre elas). ⏎ # Gerado por gerar_categorias.py, do TMDB. Não editar à mão (exceções: categorias-manual.txt). ⏎ # Título fora daqui é filme ou série comum. ⏎ # tipo	título	categorias ⏎ f	10 Horas para o Natal (2020)	kids ⏎ f	100% Lobo (2020)	kids
+busca.txt → #AMFAD All My Friends Are Dead	f	# ⏎ #Alive (2020)	f	# ⏎ #Alto Realidade (2017)	f	# ⏎ #AnneFrank. Parallel Stories	f	# ⏎ #Captured	f	# ⏎ #ComVocê: Volume: 1	f	#
+generos.txt → # Gênero de cada título, do TMDB. Gerado por gerar_generos.py — não editar à mão. ⏎ # tipo	título	gêneros separados por vírgula ⏎ f	#AMFAD All My Friends Are Dead	Terror,Comédia,Suspense ⏎ f	#Alive (2020)	Ação,Terror,Ficção científica ⏎ f	#Alto Realidade (2017)	Comédia ⏎ f	#AnneFrank. Parallel Stories	Documentário,Drama,História
+fichas.txt → # Ficha de cada título: id do TMDB, pôster e gêneros. ⏎ # Gerado por gerar_generos.py — não editar à mão. ⏎ capa: https://image.tmdb.org/t/p/w342 ⏎ # tipo	título	id	pôster	gêneros ⏎ f	#AMFAD All My Friends Are Dead	1090323	/wMaBBxGaPlxvmSebHOzuSaMbO00.jpg	Terror,Comédia,Suspense ⏎ f	#Alive (2020)	614696	/fUEv9INjh1HEdbD9BAExioSO65a.jpg	Ação,Terror,Ficção científica
+detalhes.txt → # Ano, nota (0 a 10), classificação indicativa (L/10/12/14/16/18) e popularidade. ⏎ # Gerado por gerar_detalhes.py, do TMDB. Não editar à mão. ⏎ # tipo	título	ano	nota	classificação	popularidade ⏎ f	#AMFAD All My Friends Are Dead	2024	5.8		1 ⏎ f	#AMFAD: All My Friends Are Dead	2024	5.8		1 ⏎ f	#Alive (2020)	2020	7.2	16	4
+novelinhas.txt → # Novelinhas (minisséries verticais, 720x1280) da RedeFlix. Gerado por atualizar_novelinhas.py. ⏎ # Episódio: base + pasta + /episode-NNN.mp4 (três dígitos). ⏎ base: https://pub-3bce2defc5bb48328c9c6f4b234fa0fb.r2.dev/novelinhas/ ⏎ # id	título	pasta	episódios	áudio (dub|leg)	capa	gêneros	sinopse ⏎ 1	A Barganha do Bebê do Bilionário	2	76	dub	https://pub-3bce2defc5bb48328c9c6f4b234fa0fb.r2.dev/novelinhas/2/poster.jpg	Gravidez	Amelia Hart tem um objetivo: salvar a vida de sua irmã Abby. À medida que as contas médicas de Abby disparam e o seu mundo desmorona, o desespero leva Amelia a Madame X, a proprietária do maior serviço de acompanhantes de Los Angeles. A solução está em um encontro de alto risco com o CEO bilionário Nathan Reed. Para salvar a vida da irmã, Amelia Hart deve oferecer uma vida. Ela precisa se casar co ⏎ 2	A Herdeira Pôs o Marido na Lista Negra	3	85	dub	https://pub-3bce2de
+destaques.txt → # Fileiras da tela inicial. Geradas por gerar_destaques.py — não editar à mão. ⏎ capa: https://image.tmdb.org/t/p/w342 ⏎ fila	Em alta ⏎ f	A Odisseia (2026)	A	2026	/m0ehGErq8GTLK4WZxaq9QLGAR3u.jpg ⏎ f	Jogos Vorazes: Amanhecer na Colheita	J		/ibZ6GSHtCeC7fLDJ2uyXNemgYwr.jpg ⏎ f	Protegendo Estrelas	P		/lcjabMgrRfWGs81vq9vGK0tERDo.jpg
+marcas.txt → 
+series-A.txt → A Academia		0	8 ⏎ A Acusação		0	4 ⏎ A Agente	2025	0	6 ⏎ A Agência	2024	0	20 ⏎ A Amiga Genial	2018	0	14 ⏎ A Anatomia de Grey		0	464
+series-A-1.txt → @A Gangue da Luva Verde ⏎ 1	1	dub	19:210750/1/1 ⏎ 1	2	dub	19:210750/1/2 ⏎ 1	3	dub	19:210750/1/3 ⏎ 1	4	dub	19:210750/1/4 ⏎ 1	5	dub	19:210750/1/5
+redeflix/links-animes.txt → @#I&#039;m Looking for a Zombie		301139 ⏎ 1	1	dub	19:301139/1/1 ⏎ 1	1	leg	19:301139/1/1.mp4?lang=leg ⏎ @(Des)encanto	2018	73021 ⏎ 1	1	dub	19:73021/1/1 ⏎ 1	2	dub	19:73021/1/2
+redeflix/links-doramas.txt → @Diva à Deriva	2023	216310 ⏎ 1	1	dub	19:216310/1/1 ⏎ 1	2	dub	19:216310/1/2 ⏎ 1	3	dub	19:216310/1/3 ⏎ 1	4	dub	19:216310/1/4 ⏎ 1	5	dub	19:216310/1/5
 ```
 
