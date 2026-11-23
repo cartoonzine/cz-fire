@@ -187,47 +187,218 @@ function gravarCategoria(cat, itens, gravados) {
     return partes.length;
 }
 
+
+/** 🔎 procura no site do Saimo de onde vêm séries, animes, doramas… (vai para a descoberta) */
+async function explorar(desc) {
+    desc.push('## 🔎 Exploração do site', '');
+    const scripts = new Set();
+    for (const pg of ['https://saimo-tv.com.br/movies', 'https://saimo-tv.com.br/', 'https://saimo-tv.com.br/tv']) {
+        const h = await baixar(pg); if (!h) { desc.push(`- ${pg} não abriu`); continue; }
+        for (const m of h.matchAll(/<script[^>]+src="([^"]+)"/gi)) scripts.add(new URL(m[1], pg).href);
+        for (const m of h.matchAll(/<link[^>]+href="([^"]+\.js)"/gi)) scripts.add(new URL(m[1], pg).href);
+    }
+    const fila = [...scripts], feitos = new Set(), achados = new Set(), trechos = [];
+    while (fila.length && feitos.size < 60) {
+        const u = fila.shift(); if (feitos.has(u)) continue; feitos.add(u);
+        const js = await baixar(u); if (!js) continue;
+        if (/indice\.txt|VodCatalog|novelinhas/.test(js) && !SIMULAR) { fs.mkdirSync(path.join(SAIDA, 'bruto'), { recursive: true }); fs.writeFileSync(path.join(SAIDA, 'bruto', u.split('/').pop()), js); }
+        for (const m of js.matchAll(/["'`](\.?\.?\/?[\w./-]+\.js)["'`]/g)) { try { const v = new URL(m[1], u).href; if (v.includes('saimo') && !feitos.has(v)) fila.push(v); } catch (e) {} }
+        for (const m of js.matchAll(/https?:\/\/[\w.-]+\.(?:pages\.dev|workers\.dev|saimotv\.com|saimo-tv\.com\.br)[\w./%?=&-]*/g)) achados.add(m[0]);
+        for (const m of js.matchAll(/["'`][\w${}%.\/-]*\.(?:txt|json|m3u8?)["'`]/g)) achados.add(m[0]);
+        for (const re of [/filmes-/g, /indice\.txt/g, /dorama/gi, /novela/gi, /anime/gi, /s[eé]ries?-/gi, /kids/gi]) {
+            let n = 0; for (const m of js.matchAll(re)) { if (n++ >= 3) break; trechos.push(`[${u.split('/').pop()}] …${js.slice(Math.max(0, m.index - 160), m.index + 200).replace(/\s+/g, ' ')}…`); }
+        }
+    }
+    desc.push(`Scripts lidos: ${feitos.size}`, '', 'Endereços e arquivos citados:', '```', ...[...achados].slice(0, 200), '```', '', 'Trechos:', '```', ...trechos.slice(0, 80), '```', '');
+    const ok = [];
+    for (const n of ['categorias.txt', 'busca.txt', 'generos.txt', 'fichas.txt', 'detalhes.txt', 'novelinhas.txt', 'destaques.txt', 'marcas.txt', 'series-A.txt', 'series-A-1.txt', 'redeflix/links-animes.txt', 'redeflix/links-doramas.txt', 'animes.txt', 'doramas.txt', 'novelas.txt', 'kids.txt']) {
+        const t = await baixar(FILMES_BASE + '/' + n);
+        if (t && !/^\s*<!doctype html/i.test(t)) { ok.push(`${n} → ${t.split(/\r?\n/).filter(Boolean).slice(0, 6).join(' ⏎ ').slice(0, 900)}`); if (!SIMULAR) { fs.mkdirSync(path.join(SAIDA, 'bruto'), { recursive: true }); fs.writeFileSync(path.join(SAIDA, 'bruto', n.replace(/\//g, '_')), t.slice(0, 200000)); } }
+    }
+    desc.push('Nomes testados que abriram:', '```', ...(ok.length ? ok : ['(nenhum)']), '```', '');
+}
+
+// ───────────── leitura do acervo do Saimo (formato documentado no próprio app deles) ─────────────
+const CAT_DE = { anime: 'animes', dorama: 'doramas', novela: 'novelas', kids: 'kids' };
+const linhas = (t) => String(t || '').replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim() && !l.startsWith('#'));
+const desfazHtml = (s) => String(s).replace(/&#0?39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+const semAno = (t) => String(t).replace(/\s*\((19|20)\d\d\)\s*$/, '').trim();
+
+/** "tipo<TAB>título<TAB>…" → Map("f|título" → colunas) */
+export function tabelaPorTitulo(txt) {
+    const m = new Map();
+    for (const l of linhas(txt)) { const c = l.split('\t'); if (c.length >= 3) m.set(c[0] + '|' + c[1], c.slice(2)); }
+    return m;
+}
+/** a categoria do título: anime, dorama, novela, kids ("anime,kids" fica em animes) ou a padrão */
+export function categoriaDoTitulo(cats, tipo, titulo, padrao) {
+    const c = cats.get(tipo + '|' + titulo) || cats.get(tipo + '|' + semAno(titulo));
+    if (!c) return padrao;
+    const lista = String(c[0] || '').split(',').map(s => s.trim());
+    for (const k of ['anime', 'dorama', 'novela', 'kids']) if (lista.includes(k)) return CAT_DE[k];
+    return padrao;
+}
+/** "18:228194" → tmdb do filme; "19:210750/1/1" → tmdb da série (os servidores do Saimo usam o id do TMDB no caminho) */
+export function tmdbDoLink(raw) { const m = String(raw).match(/^\d+:(\d+)(?:[/.?]|$)/); return m ? m[1] : undefined; }
+
+function enfeitar(o, tipo, titulo, aux) {
+    const f = aux.fichas.get(tipo + '|' + titulo);
+    if (f) {
+        if (f[0] && /^\d+$/.test(f[0])) { o.tmdbId = f[0]; o.tmdbTipo = tipo === 'f' ? 'movie' : 'tv'; }
+        if (f[1]) o.thumb = /^https?:/.test(f[1]) ? f[1] : aux.capaBase + f[1];
+        if (f[2]) o.genre = f[2].split(',')[0];
+    }
+    const d = aux.detalhes.get(tipo + '|' + titulo);
+    if (d) { if (+d[0] && !o.year) o.year = +d[0]; if (+d[1]) o.rating = +d[1]; if (d[2]) o.age = d[2]; }
+    if (!o.genre) { const g = aux.generos.get(tipo + '|' + titulo); if (g && g[0]) o.genre = g[0].split(',')[0]; }
+    return o;
+}
+
+/** filmes-X.txt: título<TAB>dub=links<TAB>leg=links */
+export function lerFilmesSaimo(txt, bases, aux, porCat) {
+    for (const l of linhas(txt)) {
+        const cols = l.split('\t'), titulo = cols[0].trim(); if (!titulo) continue;
+        const urls = [], auds = new Set(); let tmdb;
+        for (const c of cols.slice(1)) {
+            const rot = c.includes('=') ? c.split('=')[0] : 'dub';
+            const parte = c.includes('=') ? c.split('=').slice(1).join('=') : c;
+            for (const raw of parte.split(',')) {
+                const u = resolverLink(raw, bases); if (!u || u.includes('/api/stream') || urls.includes(u)) continue;
+                urls.push(u); auds.add(rot === 'leg' ? 'legendado' : 'dublado'); tmdb = tmdb || tmdbDoLink(raw.trim());
+            }
+        }
+        if (!urls.length) continue;
+        const cat = categoriaDoTitulo(aux.cats, 'f', titulo, 'filmes');
+        const a = analisarTitulo(titulo);
+        const o = { name: titulo, url: urls[0] };
+        if (urls.length > 1) o.mirrors = urls.slice(1);
+        o.group = NOME_GRUPO[cat]; o.title = a.titulo || titulo; if (a.ano) o.year = a.ano;
+        o.audios = [...auds];
+        if (tmdb) { o.tmdbId = tmdb; o.tmdbTipo = 'movie'; }
+        (porCat[cat] = porCat[cat] || []).push(enfeitar(o, 'f', titulo, aux));
+    }
+}
+
+/** blocos "@Título<TAB>ano<TAB>tmdb" seguidos de "temporada<TAB>episódio<TAB>dub|leg<TAB>link" */
+export function lerEpisodiosSaimo(txt, bases, aux, porCat, catPadrao, infoSerie) {
+    let atual = null;
+    const fechar = () => {
+        if (!atual) return;
+        const cat = categoriaDoTitulo(aux.cats, 's', atual.titulo, catPadrao);
+        for (const ep of atual.eps.values()) {
+            const nome = `${atual.serie} S${String(ep.t).padStart(2, '0')}E${String(ep.e).padStart(2, '0')}`;
+            const o = { name: nome, url: ep.urls[0] };
+            if (ep.urls.length > 1) o.mirrors = ep.urls.slice(1);
+            o.group = NOME_GRUPO[cat]; o.title = nome; o.serie = atual.serie; o.season = ep.t; o.episode = ep.e;
+            if (atual.ano) o.year = atual.ano;
+            o.audios = [...ep.auds];
+            if (atual.tmdb) { o.tmdbId = atual.tmdb; o.tmdbTipo = 'tv'; }
+            (porCat[cat] = porCat[cat] || []).push(enfeitar(o, 's', atual.titulo, aux));
+        }
+        atual = null;
+    };
+    for (const l of linhas(txt)) {
+        if (l.startsWith('@')) {
+            fechar();
+            const c = l.slice(1).split('\t'), titulo = desfazHtml(c[0].trim()), info = infoSerie && infoSerie.get(titulo);
+            const ano = +(c[1] || (info && info.ano) || 0) || undefined;
+            atual = { titulo, serie: semAno(titulo), ano, tmdb: /^\d+$/.test(c[2] || '') ? c[2] : undefined, eps: new Map() };
+            continue;
+        }
+        if (!atual) continue;
+        const c = l.split('\t'); if (c.length < 4) continue;
+        const t = +c[0], e = +c[1], u = resolverLink(c[3], bases); if (!u || !Number.isFinite(t) || !Number.isFinite(e)) continue;
+        const k = t + '|' + e, ep = atual.eps.get(k) || { t, e, urls: [], auds: new Set() };
+        if (!ep.urls.includes(u)) ep.urls.push(u);
+        ep.auds.add(c[2] === 'leg' ? 'legendado' : 'dublado');
+        atual.tmdb = atual.tmdb || tmdbDoLink(c[3]);
+        atual.eps.set(k, ep);
+    }
+    fechar();
+}
+
+/** novelinhas.txt: base + pasta + /episode-NNN.mp4 */
+export function lerNovelinhas(txt, porCat) {
+    let base = '';
+    for (const l of String(txt || '').split(/\r?\n/)) {
+        if (l.startsWith('base:')) { base = l.slice(5).trim(); if (!base.endsWith('/')) base += '/'; continue; }
+        if (!l.trim() || l.startsWith('#')) continue;
+        const [, titulo, pasta, neps, aud, capa, gens, sinopse] = l.split('\t');
+        if (!titulo || !pasta || !+neps) continue;
+        for (let e = 1; e <= +neps; e++) {
+            const nome = `${titulo.trim()} S01E${String(e).padStart(2, '0')}`;
+            const o = { name: nome, url: `${base}${pasta}/episode-${String(e).padStart(3, '0')}.mp4`, group: 'Novelinhas', title: nome, serie: titulo.trim(), season: 1, episode: e, audios: [aud === 'leg' ? 'legendado' : 'dublado'] };
+            if (capa) o.thumb = capa; if (gens) o.genre = gens.split(',')[0]; if (sinopse) o.desc = sinopse;
+            (porCat.novelinhas = porCat.novelinhas || []).push(o);
+        }
+    }
+}
+
 async function main() {
     const inicio = Date.now();
     const desc = ['# 🔥 CZ Fire — descoberta', '', `Gerado em ${new Date().toISOString()}`, ''];
     const porCat = {};
-    const vistos = new Set();
-    const add = (cat, lista) => { const a = porCat[cat] = porCat[cat] || []; for (const it of lista) { const k = cat + '|' + it.name + '|' + it.url; if (!vistos.has(k)) { vistos.add(k); a.push(it); } } };
+    const pegar = async (arq) => { const t = await baixar(`${FILMES_BASE}/${arq}`); return t && !/^\s*<!doctype html/i.test(t) ? t : null; };
 
-    for (const [rotulo, base, padrao] of [['Filmes', FILMES_BASE, 'filmes'], ['Canais', CANAIS_BASE, 'canais']]) {
-        const indTxt = await baixar(`${base}/indice.txt`);
-        const ind = lerIndice(indTxt);
-        desc.push(`## ${rotulo} — ${base}`, '', indTxt == null ? '⚠️ indice.txt não abriu' : `Servidores (base:): ${Object.keys(ind.bases).length} · arquivos citados: ${ind.arquivos.length}`, '');
-        if (ind.outras.length) desc.push('Outras linhas do índice:', '```', ...ind.outras.slice(0, 40), '```', '');
-        let fila = ind.arquivos.slice();
-        if (padrao === 'filmes') fila = fila.concat(LETRAS.map(l => `filmes-${l === '#' ? '%23' : l}.txt`));
-        else fila = fila.concat(['canais.txt', 'canais.m3u', 'canais.json', 'lista.m3u']);
-        fila = [...new Set(fila)];
-        for (const arq of fila) {
-            const url = /^https?:/i.test(arq) ? arq : `${base}/${arq}`;
-            const txt = await baixar(url);
-            if (txt == null) { if (ind.arquivos.includes(arq)) desc.push(`- ❌ ${arq} não abriu`); continue; }
-            const cat = categoriaDe(arq, padrao);
-            const itens = lerArquivo(arq, txt, cat, ind.bases);
-            add(cat, itens);
-            desc.push(`### ${arq} → ${cat} (${itens.length} itens)`, '```', ...txt.split(/\r?\n/).filter(Boolean).slice(0, 5).map(l => l.slice(0, 300)), '```', '');
-            console.log(`📄 ${arq} → ${cat}: ${itens.length}`);
-        }
+    // índice: servidores + quantos filmes/séries por letra
+    const indTxt = await pegar('indice.txt');
+    if (!indTxt) { console.error('🛑 indice.txt não abriu — as listas antigas ficam.'); process.exit(1); }
+    const bases = {}, letras = [];
+    for (const l of indTxt.split(/\r?\n/)) {
+        const s = l.trim(); if (!s) continue;
+        if (s.startsWith('base:')) { const [, id, url] = s.split(/\s+/); if (id && url) bases[id] = url.endsWith('/') ? url : url + '/'; continue; }
+        const c = l.split('\t'); if (c.length >= 3 && /^([A-Z#])$/.test(c[0].trim())) letras.push({ letra: c[0].trim(), filmes: +c[1] || 0, series: +c[2] || 0 });
     }
+    const aux = { cats: tabelaPorTitulo(await pegar('categorias.txt')), fichas: new Map(), detalhes: tabelaPorTitulo(await pegar('detalhes.txt')), generos: tabelaPorTitulo(await pegar('generos.txt')), capaBase: 'https://image.tmdb.org/t/p/w342' };
+    const fichasTxt = await pegar('fichas.txt');
+    if (fichasTxt) { const m = fichasTxt.match(/^capa:\s*(\S+)/m); if (m) aux.capaBase = m[1]; aux.fichas = tabelaPorTitulo(fichasTxt.split(/\r?\n/).filter(l => !l.startsWith('capa:')).join('\n')); }
+    desc.push(`Servidores: ${Object.keys(bases).length} · letras: ${letras.length} · categorias: ${aux.cats.size} · fichas: ${aux.fichas.size}`, '');
 
+    for (const { letra, filmes, series } of letras) {
+        const L = letra === '#' ? '%23' : letra;
+        if (filmes) { const t = await pegar(`filmes-${L}.txt`); if (t) lerFilmesSaimo(t, bases, aux, porCat); else desc.push(`- ❌ filmes-${letra}.txt não abriu`); }
+        if (series) {
+            const lista = await pegar(`series-${L}.txt`); if (!lista) { desc.push(`- ❌ series-${letra}.txt não abriu`); continue; }
+            const info = new Map(), pedacos = new Set();
+            for (const l of linhas(lista)) { const c = l.split('\t'); info.set(c[0].trim(), { ano: c[1] }); if (c[2] !== undefined && c[2] !== '') pedacos.add(c[2].trim()); }
+            for (const n of pedacos) { const t = await pegar(`series-${L}-${n}.txt`); if (t) lerEpisodiosSaimo(t, bases, aux, porCat, 'series', info); else desc.push(`- ❌ series-${letra}-${n}.txt não abriu`); }
+        }
+        console.log(`🔤 ${letra}`);
+    }
+    for (const [arq, cat] of [['redeflix/links-animes.txt', 'animes'], ['redeflix/links-doramas.txt', 'doramas']]) {
+        const t = await pegar(arq); if (t) lerEpisodiosSaimo(t, bases, aux, porCat, cat, null); else desc.push(`- ❌ ${arq} não abriu`);
+    }
+    const nov = await pegar('novelinhas.txt'); if (nov) lerNovelinhas(nov, porCat); else desc.push('- ❌ novelinhas.txt não abriu');
+
+    // canais: catalogo.txt (o que o app usa) ou canais.txt
+    for (const arq of ['catalogo.txt', 'canais.txt']) {
+        const t = await baixar(`${CANAIS_BASE}/${arq}`); if (!t || /^\s*<!doctype html/i.test(t)) continue;
+        const itens = lerArquivo(arq, t, 'canais', bases);
+        desc.push(`### canais: ${arq} (${itens.length})`, '```', ...t.split(/\r?\n/).filter(Boolean).slice(0, 6).map(l => l.slice(0, 250)), '```', '');
+        if (itens.length) { porCat.canais = itens; break; }
+    }
+    if (process.argv.includes('--explorar') || process.env.FIRE_EXPLORAR) await explorar(desc);
+
+    // um episódio/filme repetido (mesmo nome) vira um só, juntando os links
     if (!SIMULAR) fs.mkdirSync(SAIDA, { recursive: true });
     const gravados = new Set(['resumo.json', 'descoberta.md']);
     const resumo = { geradoEm: new Date().toISOString(), categorias: {} };
-    for (const [cat, itens] of Object.entries(porCat)) {
-        if (!itens.length) continue;
+    for (const [cat, bruto] of Object.entries(porCat)) {
+        const m = new Map();
+        for (const it of bruto) {
+            const k = it.name.toLowerCase(), j = m.get(k);
+            if (!j) { m.set(k, it); continue; }
+            const todos = [j.url, ...(j.mirrors || []), it.url, ...(it.mirrors || [])].filter((u, i, a) => a.indexOf(u) === i);
+            j.mirrors = todos.slice(1); j.audios = [...new Set([...(j.audios || []), ...(it.audios || [])])];
+        }
+        const itens = [...m.values()]; if (!itens.length) continue;
         itens.sort((a, b) => a.name.localeCompare(b.name, 'pt'));
-        const partes = gravarCategoria(cat, itens, gravados);
-        resumo.categorias[cat] = { itens: itens.length, partes };
+        resumo.categorias[cat] = { itens: itens.length, partes: gravarCategoria(cat, itens, gravados) };
     }
     const total = Object.values(resumo.categorias).reduce((s, c) => s + c.itens, 0);
     if (!total) { console.error('🛑 Nada veio das fontes — as listas antigas ficam como estão.'); process.exit(1); }
     if (!SIMULAR) {
-        for (const f of fs.readdirSync(SAIDA)) if (!gravados.has(f) && /\.json$/.test(f)) fs.rmSync(path.join(SAIDA, f));   // parte que sobrou de uma rodada maior
+        for (const f of fs.readdirSync(SAIDA)) if (!gravados.has(f) && /\.json$/.test(f)) fs.rmSync(path.join(SAIDA, f));
         fs.writeFileSync(path.join(SAIDA, 'resumo.json'), JSON.stringify(resumo, null, 1) + '\n');
         fs.writeFileSync(path.join(SAIDA, 'descoberta.md'), desc.join('\n') + '\n');
     }
