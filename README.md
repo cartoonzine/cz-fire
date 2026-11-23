@@ -1,6 +1,6 @@
 # 🔥 CZ Fire
 
-Ponte que baixa os dados emprestados do Saimo (filmes-saimo / canais-saimo) e publica **listas prontas por categoria** no formato do Cartoonzine, para usar nos envios do Sidechain.
+Ponte sm (filmes-sm / canais-sm) e publica **listas prontas por categoria** no formato do CZ, para usar nos envios do Sidechain.
 
 - Robô: `.github/workflows/fire.yml` (a cada 6 h ou em **Actions → 🔥 CZ Fire → Run workflow**).
 - Saída em `listas/`: `filmes.json`, `series.json`, `animes.json`, `doramas.json`, `novelas.json`, `novelinhas.json`, `kids.json`, `canais.json` (só as que existirem; listas grandes saem em partes `x-2.json`…).
