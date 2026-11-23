@@ -201,6 +201,7 @@ async function explorar(desc) {
     while (fila.length && feitos.size < 60) {
         const u = fila.shift(); if (feitos.has(u)) continue; feitos.add(u);
         const js = await baixar(u); if (!js) continue;
+        if (/indice\.txt|VodCatalog|novelinhas/.test(js) && !SIMULAR) { fs.mkdirSync(path.join(SAIDA, 'bruto'), { recursive: true }); fs.writeFileSync(path.join(SAIDA, 'bruto', u.split('/').pop()), js); }
         for (const m of js.matchAll(/["'`](\.?\.?\/?[\w./-]+\.js)["'`]/g)) { try { const v = new URL(m[1], u).href; if (v.includes('saimo') && !feitos.has(v)) fila.push(v); } catch (e) {} }
         for (const m of js.matchAll(/https?:\/\/[\w.-]+\.(?:pages\.dev|workers\.dev|saimotv\.com|saimo-tv\.com\.br)[\w./%?=&-]*/g)) achados.add(m[0]);
         for (const m of js.matchAll(/["'`][\w${}%.\/-]*\.(?:txt|json|m3u8?)["'`]/g)) achados.add(m[0]);
@@ -209,11 +210,11 @@ async function explorar(desc) {
         }
     }
     desc.push(`Scripts lidos: ${feitos.size}`, '', 'Endereços e arquivos citados:', '```', ...[...achados].slice(0, 200), '```', '', 'Trechos:', '```', ...trechos.slice(0, 80), '```', '');
-    // tenta nomes prováveis
-    const bases = [FILMES_BASE, ...['series', 'animes', 'doramas', 'novelas', 'kids', 'conteudo', 'vod'].map(n => `https://${n}-saimo.pages.dev`)];
-    const nomes = ['indice.txt', ...['series', 'animes', 'doramas', 'novelas', 'novelinhas', 'kids', 'desenhos', 'infantil'].flatMap(n => [`${n}-A.txt`, `${n}.txt`, `${n}.json`]), 'series/indice.txt', 'series/A.txt'];
     const ok = [];
-    for (const b of bases) for (const n of nomes) { if (b === FILMES_BASE && n === 'indice.txt') continue; const t = await baixar(b + '/' + n); if (t && !/^\s*<!doctype html/i.test(t)) ok.push(`${b}/${n} → ${t.split(/\r?\n/).filter(Boolean).slice(0, 3).join(' ⏎ ').slice(0, 300)}`); }
+    for (const n of ['categorias.txt', 'busca.txt', 'generos.txt', 'fichas.txt', 'detalhes.txt', 'novelinhas.txt', 'destaques.txt', 'marcas.txt', 'series-A.txt', 'series-A-1.txt', 'redeflix/links-animes.txt', 'redeflix/links-doramas.txt', 'animes.txt', 'doramas.txt', 'novelas.txt', 'kids.txt']) {
+        const t = await baixar(FILMES_BASE + '/' + n);
+        if (t && !/^\s*<!doctype html/i.test(t)) { ok.push(`${n} → ${t.split(/\r?\n/).filter(Boolean).slice(0, 6).join(' ⏎ ').slice(0, 900)}`); if (!SIMULAR) { fs.mkdirSync(path.join(SAIDA, 'bruto'), { recursive: true }); fs.writeFileSync(path.join(SAIDA, 'bruto', n.replace(/\//g, '_')), t.slice(0, 200000)); } }
+    }
     desc.push('Nomes testados que abriram:', '```', ...(ok.length ? ok : ['(nenhum)']), '```', '');
 }
 
