@@ -1,6 +1,6 @@
 # 🔥 CZ Fire — descoberta
 
-Gerado em 2026-11-23T04:06:08.046Z
+Gerado em 2026-11-23T04:07:04.649Z
 
 Índice: 23718 filmes · 5965 séries
 ```
