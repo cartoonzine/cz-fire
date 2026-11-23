@@ -1,0 +1,25 @@
+name: 🔥 CZ Fire
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: fire, cancel-in-progress: false }
+jobs:
+  fire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node tools/fire.mjs
+      - name: Publicar listas
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add listas
+          git diff --cached --quiet && { echo "Nada mudou."; exit 0; }
+          git commit -m "🔥 listas atualizadas"
+          git push
