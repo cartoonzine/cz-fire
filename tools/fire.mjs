@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 🔥 CZ Fire — ponte dos dados emprestados (Saimo) para listas prontas do Cartoonzine.
+ * 🔥 CZ Fire — ponte de dados (sm) para listas prontas do CZ.
  *
  *  1. Lê o indice.txt de cada base (filmes e canais): as linhas "base: <id> <url>" viram o dicionário de servidores
  *     e qualquer outro arquivo citado (.txt / .json / .m3u) entra na fila.
