@@ -334,6 +334,38 @@ export function lerNovelinhas(txt, porCat) {
     }
 }
 
+/** catalogo.txt dos canais: "chave: valor" (canal, logo, categoria, fonte, nome, referer, agente, chave) */
+export function lerCatalogoCanais(txt) {
+    const out = []; let c = null, f = null;
+    const fechar = () => {
+        if (!c || !c.fontes.length) { c = null; return; }
+        const urls = c.fontes.map(x => montarUrlCanal(x.url, x.referer));
+        const o = { name: c.nome, url: urls[0] };
+        if (urls.length > 1) o.mirrors = urls.slice(1);
+        o.group = c.categoria || 'Canais';
+        if (c.logo) o.logo = c.logo;
+        const h = {}, f0 = c.fontes[0];
+        if (f0.agente) h['User-Agent'] = f0.agente;
+        if (f0.referer && urls[0] === f0.url) h.Referer = f0.referer;
+        if (Object.keys(h).length) o.headers = h;
+        if (f0.chave) o.clearkey = f0.chave;
+        out.push(o); c = null;
+    };
+    for (const l of String(txt || '').split(/\r?\n/)) {
+        const s = l.trim(); if (!s || s.startsWith('#')) continue;
+        const i = s.indexOf(':'); if (i < 1) continue;
+        const k = s.slice(0, i).trim().toLowerCase(), v = s.slice(i + 1).trim();
+        if (k === 'canal') { fechar(); c = { nome: v, fontes: [] }; f = null; }
+        else if (!c) continue;
+        else if (k === 'logo') c.logo = v;
+        else if (k === 'categoria') c.categoria = v;
+        else if (k === 'fonte') { f = { url: v }; c.fontes.push(f); }
+        else if (f && (k === 'referer' || k === 'agente' || k === 'chave' || k === 'nome')) f[k] = v;
+    }
+    fechar();
+    return out;
+}
+
 async function main() {
     const inicio = Date.now();
     const desc = ['# 🔥 CZ Fire — descoberta', '', `Gerado em ${new Date().toISOString()}`, ''];
@@ -373,8 +405,8 @@ async function main() {
     // canais: catalogo.txt (o que o app usa) ou canais.txt
     for (const arq of ['catalogo.txt', 'canais.txt']) {
         const t = await baixar(`${CANAIS_BASE}/${arq}`); if (!t || /^\s*<!doctype html/i.test(t)) continue;
-        const itens = lerArquivo(arq, t, 'canais', bases);
-        desc.push(`### canais: ${arq} (${itens.length})`, '```', ...t.split(/\r?\n/).filter(Boolean).slice(0, 60).map(l => l.slice(0, 300)), '```', '');
+        const itens = arq === 'catalogo.txt' ? lerCatalogoCanais(t) : lerArquivo(arq, t, 'canais', bases);
+        desc.push(`### canais: ${arq} (${itens.length})`, '```', ...t.split(/\r?\n/).filter(l => l.trim() && !l.startsWith('#')).slice(0, 12).map(l => l.slice(0, 200)), '```', '');
         if (itens.length) { porCat.canais = itens; break; }
     }
     if (process.argv.includes('--explorar') || process.env.FIRE_EXPLORAR) await explorar(desc);
