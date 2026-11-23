@@ -419,7 +419,7 @@ async function main() {
     for (const [cat, bruto] of Object.entries(porCat)) {
         const m = new Map();
         for (const it of bruto) {
-            const k = it.name.toLowerCase(), j = m.get(k);
+            const k = it.name.toLowerCase() + '|' + (it.tmdbId || ''), j = m.get(k);
             if (!j) { m.set(k, it); continue; }
             const todos = [j.url, ...(j.mirrors || []), it.url, ...(it.mirrors || [])].filter((u, i, a) => a.indexOf(u) === i);
             j.mirrors = todos.slice(1); j.audios = [...new Set([...(j.audios || []), ...(it.audios || [])])];
