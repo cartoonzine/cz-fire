@@ -1,53 +1,53 @@
 # 🔥 CZ Fire — descoberta
 
-Gerado em 2026-11-23T18:10:37.138Z
+Gerado em 2026-11-24T03:58:00.855Z
 
-Índice: 23838 filmes · 5986 séries
+Índice: 28950 filmes · 12077 séries
 ```
-#	353	79	0
-A	3878	803	0
-B	846	297	0
-C	1549	432	0
-D	1142	343	0
-E	976	203	0
-F	663	170	0
-G	460	160	0
-H	474	163	0
-I	436	129	0
-J	423	88	0
-K	195	76	0
-L	614	189	0
-M	1433	391	0
-N	683	159	0
-O	3355	538	0
-P	1193	248	0
-Q	234	51	0
-R	639	186	0
-S	1321	432	0
-T	1160	489	0
-U	1043	109	0
-V	491	109	0
-W	124	80	0
-X	32	6	0
-Y	31	32	0
-Z	90	24	0
+#	415	135	0
+A	4570	1569	0
+B	1027	535	0
+C	1918	853	0
+D	1402	630	0
+E	1177	397	0
+F	791	337	0
+G	551	314	0
+H	555	328	0
+I	519	280	0
+J	518	183	0
+K	231	204	0
+L	751	377	0
+M	1851	891	0
+N	836	323	0
+O	3948	1072	0
+P	1394	562	0
+Q	306	118	0
+R	808	404	0
+S	1676	910	0
+T	1531	913	0
+U	1201	223	0
+V	618	245	0
+W	170	135	0
+X	40	15	0
+Y	42	85	0
+Z	104	39	0
 
 ```
-Servidores: 20 · letras: 27 · categorias: 3562 · fichas: 57581
+Servidores: 20 · letras: 27 · categorias: 5920 · fichas: 38091
 
-### canais: catalogo.txt (240)
+### canais: catalogo.txt (205)
 ```
 canal: A&E
 categoria: Documentários
 logo: https://img.faz-o-eli.online/ae.png
+fonte: https://live.lixe.net/hls/g7/A%26E%20TV/index.m3u8
+qualidade: HD
 fonte: https://eitvplay.appmembers.com.br/event60/index.m3u8?token=jzFQQe9OVYP1ycd5Cqe0Av7tzx6QRtgJ
 qualidade: HD · 1280x720
 fonte: https://video39.mais.uol.com.br/live/267.mpd
 qualidade: HD · 1280x720
 chave: 74481194bf32774e0cb44a1d71d6cc19:4bfd25bc9419f1c71e3ee8e6bf5ccf2a
-fonte: https://45ea5aa4b933eece04c04cef9780baab.sv-nl-02-cloudfront-net.lat/stream/9b672bc63ebe9d8abc7f829a53533590/error.txt
-qualidade: HD · 1280x720
-fonte: https://d2-ywppjexvlyulasvmgzjdftfjikth0711oq80soveui6lkbi2iza2zf.cdn8embed.xyz/aee/index.m3u8
+fonte: https://d2-ywppjexvlyulasvmgzjdftfjikth2311oq80soveui6lkbi2iza2zf.cdn12embed.xyz/aee/index.m3u8
 qualidade: FHD
 ```
 
