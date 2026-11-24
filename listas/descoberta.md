@@ -1,41 +1,41 @@
 # 🔥 CZ Fire — descoberta
 
-Gerado em 2026-11-24T03:58:00.855Z
+Gerado em 2026-11-24T17:47:00.851Z
 
-Índice: 28950 filmes · 12077 séries
+Índice: 28935 filmes · 12032 séries
 ```
-#	415	135	0
-A	4570	1569	0
-B	1027	535	0
-C	1918	853	0
-D	1402	630	0
-E	1177	397	0
-F	791	337	0
+#	415	133	0
+A	4571	1565	0
+B	1024	530	0
+C	1916	851	0
+D	1401	627	0
+E	1177	395	0
+F	792	335	0
 G	551	314	0
-H	555	328	0
-I	519	280	0
-J	518	183	0
-K	231	204	0
-L	751	377	0
-M	1851	891	0
-N	836	323	0
-O	3948	1072	0
-P	1394	562	0
+H	555	326	0
+I	517	278	0
+J	517	182	0
+K	231	203	0
+L	752	374	0
+M	1850	888	0
+N	837	322	0
+O	3951	1072	0
+P	1390	559	0
 Q	306	118	0
-R	808	404	0
-S	1676	910	0
-T	1531	913	0
-U	1201	223	0
-V	618	245	0
-W	170	135	0
-X	40	15	0
+R	806	404	0
+S	1673	907	0
+T	1531	909	0
+U	1198	222	0
+V	619	246	0
+W	169	134	0
+X	40	14	0
 Y	42	85	0
 Z	104	39	0
 
 ```
-Servidores: 20 · letras: 27 · categorias: 5920 · fichas: 38091
+Servidores: 20 · letras: 27 · categorias: 6159 · fichas: 38090
 
-### canais: catalogo.txt (205)
+### canais: catalogo.txt (238)
 ```
 canal: A&E
 categoria: Documentários
@@ -47,7 +47,7 @@ qualidade: HD · 1280x720
 fonte: https://video39.mais.uol.com.br/live/267.mpd
 qualidade: HD · 1280x720
 chave: 74481194bf32774e0cb44a1d71d6cc19:4bfd25bc9419f1c71e3ee8e6bf5ccf2a
-fonte: https://d2-ywppjexvlyulasvmgzjdftfjikth2311oq80soveui6lkbi2iza2zf.cdn12embed.xyz/aee/index.m3u8
-qualidade: FHD
+fonte: https://e8d009afe4d01e7c84830c60fbfe5ec6.sv-nl-02-cloudfront-net.lat/stream/f895276523e7fa77e407c6539b178529/error.txt
+qualidade: HD · 1280x720
 ```
 
