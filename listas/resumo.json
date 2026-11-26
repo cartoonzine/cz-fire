@@ -1,8 +1,8 @@
 {
- "geradoEm": "2026-11-26T01:48:18.953Z",
+ "geradoEm": "2026-11-26T16:56:30.380Z",
  "categorias": {
   "filmes": {
-   "itens": 26750,
+   "itens": 26754,
    "partes": 1
   },
   "kids": {
@@ -14,7 +14,7 @@
    "partes": 2
   },
   "series": {
-   "itens": 215857,
+   "itens": 215988,
    "partes": 3
   },
   "doramas": {
@@ -22,15 +22,15 @@
    "partes": 1
   },
   "novelas": {
-   "itens": 111876,
+   "itens": 111877,
    "partes": 2
   },
   "novelinhas": {
-   "itens": 21580,
+   "itens": 18102,
    "partes": 1
   },
   "canais": {
-   "itens": 233,
+   "itens": 354,
    "partes": 1
   }
  }
