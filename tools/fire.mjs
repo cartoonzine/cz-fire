@@ -263,7 +263,7 @@ export function lerFilmesSaimo(txt, bases, aux, porCat) {
             const rot = c.includes('=') ? c.split('=')[0] : 'dub';
             const parte = c.includes('=') ? c.split('=').slice(1).join('=') : c;
             for (const raw of parte.split(',')) {
-                const u = resolverLink(raw, bases); if (!u || urls.includes(u)) continue;
+                const u = resolverLink(raw, bases); if (!u || u.includes('/api/stream') || urls.includes(u)) continue;
                 urls.push(u); auds.add(rot === 'leg' ? 'legendado' : 'dublado'); tmdb = tmdb || tmdbDoLink(raw.trim());
             }
         }
@@ -279,9 +279,6 @@ export function lerFilmesSaimo(txt, bases, aux, porCat) {
     }
 }
 
-/** o link do próprio Saimo (/api/stream, resolve na hora e toca) vai primeiro; os outros ficam de reserva */
-export const ordenarLinks = (urls) => urls.filter(u => /\/api\/stream/.test(u)).concat(urls.filter(u => !/\/api\/stream/.test(u)));
-
 /** blocos "@Título<TAB>ano<TAB>tmdb" seguidos de "temporada<TAB>episódio<TAB>dub|leg<TAB>link" */
 export function lerEpisodiosSaimo(txt, bases, aux, porCat, catPadrao, infoSerie) {
     let atual = null;
@@ -289,7 +286,6 @@ export function lerEpisodiosSaimo(txt, bases, aux, porCat, catPadrao, infoSerie)
         if (!atual) return;
         const cat = categoriaDoTitulo(aux.cats, 's', atual.titulo, catPadrao);
         for (const ep of atual.eps.values()) {
-            ep.urls = ordenarLinks(ep.urls);
             const nome = `${atual.serie} S${String(ep.t).padStart(2, '0')}E${String(ep.e).padStart(2, '0')}`;
             const o = { name: nome, url: ep.urls[0] };
             if (ep.urls.length > 1) o.mirrors = ep.urls.slice(1);
@@ -311,13 +307,11 @@ export function lerEpisodiosSaimo(txt, bases, aux, porCat, catPadrao, infoSerie)
         }
         if (!atual) continue;
         const c = l.split('\t'); if (c.length < 4) continue;
-        // a coluna de links pode trazer VÁRIOS, separados por vírgula (ex.: nixplay, dbonline e o /api/stream do Saimo): cada um vira um link
-        const t = +c[0], e = +c[1]; if (!Number.isFinite(t) || !Number.isFinite(e)) continue;
-        const us = c.slice(3).join(',').split(',').map(x => resolverLink(x, bases)).filter(Boolean); if (!us.length) continue;
+        const t = +c[0], e = +c[1], u = resolverLink(c[3], bases); if (!u || !Number.isFinite(t) || !Number.isFinite(e)) continue;
         const k = t + '|' + e, ep = atual.eps.get(k) || { t, e, urls: [], auds: new Set() };
-        for (const u of us) if (!ep.urls.includes(u)) ep.urls.push(u);
+        if (!ep.urls.includes(u)) ep.urls.push(u);
         ep.auds.add(c[2] === 'leg' ? 'legendado' : 'dublado');
-        atual.tmdb = atual.tmdb || tmdbDoLink(String(c[3]).split(',')[0]);
+        atual.tmdb = atual.tmdb || tmdbDoLink(c[3]);
         atual.eps.set(k, ep);
     }
     fechar();
