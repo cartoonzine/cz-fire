@@ -1,16 +1,16 @@
 # 🔥 CZ Fire — descoberta
 
-Gerado em 2026-11-26T16:56:16.347Z
+Gerado em 2026-11-27T01:45:21.151Z
 
-Índice: 28956 filmes · 12056 séries
+Índice: 28955 filmes · 12062 séries
 ```
 #	415	133	0
 A	4573	1574	0
-B	1024	531	0
+B	1024	532	0
 C	1917	853	0
 D	1401	627	0
-E	1179	397	0
-F	792	336	0
+E	1179	398	0
+F	792	337	0
 G	551	314	0
 H	556	326	0
 I	517	278	0
@@ -20,11 +20,11 @@ L	753	374	0
 M	1850	890	0
 N	837	323	0
 O	3954	1074	0
-P	1391	560	0
+P	1391	561	0
 Q	306	119	0
-R	808	404	0
+R	808	405	0
 S	1674	908	0
-T	1534	909	0
+T	1533	910	0
 U	1202	222	0
 V	619	246	0
 W	169	134	0
@@ -33,9 +33,9 @@ Y	42	85	0
 Z	104	39	0
 
 ```
-Servidores: 20 · letras: 27 · categorias: 6162 · fichas: 38135
+Servidores: 20 · letras: 27 · categorias: 6162 · fichas: 38140
 
-### canais: catalogo.txt (354)
+### canais: catalogo.txt (349)
 ```
 canal: A&E
 categoria: Documentários
