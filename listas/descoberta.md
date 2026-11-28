@@ -1,6 +1,6 @@
 # 🔥 CZ Fire — descoberta
 
-Gerado em 2026-11-27T16:41:06.235Z
+Gerado em 2026-11-28T01:27:51.267Z
 
 Índice: 28957 filmes · 12067 séries
 ```
@@ -35,7 +35,7 @@ Z	104	39	0
 ```
 Servidores: 20 · letras: 27 · categorias: 6161 · fichas: 38145
 
-### canais: catalogo.txt (245)
+### canais: catalogo.txt (217)
 ```
 canal: A&E
 categoria: Documentários
@@ -47,7 +47,7 @@ qualidade: HD · 1280x720
 fonte: https://video39.mais.uol.com.br/live/267.mpd
 qualidade: HD · 1280x720
 chave: 74481194bf32774e0cb44a1d71d6cc19:4bfd25bc9419f1c71e3ee8e6bf5ccf2a
-fonte: https://a49fc0a50af4962dc188a3a82d8fd7ce.sv-nl-02-cloudfront-net.lat/stream/cdcf8114d271832385f3948a57059adb/error.txt
-qualidade: HD · 1280x720
+fonte: https://d2-ywppjexvlyulasvmgzjdftfjikth0711oq80soveui6lkbi2iza2zf.cdn8embed.xyz/aee/index.m3u8
+qualidade: FHD
 ```
 
